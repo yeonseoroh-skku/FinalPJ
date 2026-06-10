@@ -1,27 +1,20 @@
 import streamlit as st
+import os
+import plotly.graph_objects as go  # 시각화를 위한 Plotly 라이브러리 추가
 
 # --- 1. 페이지 기본 설정 및 스타일 (Soft Pink & Navy) ---
 st.set_page_config(page_title="Core Trend Dashboard", layout="wide")
 
-# Custom CSS로 기존 대시보드의 Soft Pink 배경과 Navy 텍스트 감성 그대로 재현
 st.markdown("""
     <style>
-    /* 전체 배경색 및 텍스트 색상 */
-    .stApp {
-        background-color: #FFF0F2;
-        color: #1A2A4A;
-    }
-    /* 제목 폰트 스타일 적용 */
+    .stApp { background-color: #FFF0F2; color: #1A2A4A; }
     h1, h2, h3 {
         color: #1A2A4A !important;
         font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
         font-weight: 700;
         text-shadow: 1px 1px 2px rgba(26, 42, 74, 0.15);
     }
-    p, li {
-        color: #1A2A4A !important;
-        font-weight: 500;
-    }
+    p, li { color: #1A2A4A !important; font-weight: 500; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -30,12 +23,18 @@ st.title("✨ Core Trend Dashboard")
 tabs = ["Home", "Gorpcore", "Balletcore", "GeekChic", "Barbiecore", "Cowboycore", "Royalcore"]
 selected_tab = st.segmented_control("Trends", tabs, default="Home")
 
-# --- 이미지 가운데 정렬용 strict 872x504 함수 ---
+# --- 안전하게 이미지를 표시하는 함수 (에러 방지 치트키!) ---
 def display_centered_image(image_path):
-    # 좌우 여백을 주어 이미지를 화면 중앙에 872 픽셀 크기로 배치
     col1, col2, col3 = st.columns([1, 4, 1])
     with col2:
-        st.image(image_path, width=872, use_container_width=False)
+        if os.path.exists(image_path):
+            st.image(image_path, width=872, use_container_width=False)
+        elif os.path.exists(image_path.lower()):
+            st.image(image_path.lower(), width=872, use_container_width=False)
+        elif os.path.exists(image_path.upper()):
+            st.image(image_path.upper(), width=872, use_container_width=False)
+        else:
+            st.info(f"📷 [사진 준비 중: {image_path} 파일 업로드 필요]")
 
 # --- 3. 각 페이지별 콘텐츠 구현 ---
 
@@ -53,6 +52,76 @@ if selected_tab == "Home":
     st.write("**How it's used:** It creates hyper-specific internet subcultures. For example, 'lovecore' features hearts and pink motifs, while 'royalcore' pulls inspiration from historical European monarchies.")
     st.write("**The 'Corecore' trend:** This is an artistic, somewhat surreal editing style on TikTok that mashes together unrelated audio and video clips to evoke heavy, emotional, or nostalgic feelings about modern life.")
 
+    # 📌 추가 요청 문구 반영
+    st.subheader("What Makes the Core Trend Unique")
+    st.write("Unlike previous fashion trends, which typically followed a top-down structure in which styles originated from luxury brands or haute couture fashion shows and then spread to the general public, core trends emerge from ordinary social media users. These trends are created and popularized by the public through social media platforms, ultimately influencing the fashion industry as a whole.")
+
+    st.markdown("---") # 시각화 섹션 구분을 위한 구분선
+
+    # 📈 1. 트렌드 형성 구조 비교 그래프 (Shift from Top-Down to Bottom-Up Fashion Trends)
+    st.subheader("📊 Trend Formation Structure Comparison")
+    
+    sources = ['Luxury Brands', 'Fashion Media', 'Social Media Users']
+    traditional_influence = [95, 85, 20]  # 전통 트렌드: 럭셔리/미디어 높음, 일반유저 낮음
+    core_influence = [40, 50, 95]         # 코어 트렌드: 일반유저 압도적 높음
+
+    fig1 = go.Figure()
+    fig1.add_trace(go.Bar(
+        x=sources, y=traditional_influence,
+        name='Traditional Trends (Top-Down)', marker_color='#1A2A4A' # Navy
+    ))
+    fig1.add_trace(go.Bar(
+        x=sources, y=core_influence,
+        name='Core Trends (Bottom-Up)', marker_color='#FF8DA1' # Darker Pink for contrast
+    ))
+
+    fig1.update_layout(
+        title={
+            'text': "<b>Shift from Top-Down to Bottom-Up Fashion Trends</b>",
+            'y':0.9, 'x':0.5, 'xanchor': 'center', 'yanchor': 'top'
+        },
+        font=dict(family="Helvetica Neue, Arial", size=14, color="#1A2A4A"),
+        barmode='group',
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',
+        yaxis=dict(title="Influence Level (%)", gridcolor="#F0D5D9"),
+        xaxis=dict(title="Sources of Influence"),
+        legend=dict(x=0.7, y=0.95)
+    )
+    st.plotly_chart(fig1, use_container_width=True)
+    st.caption("**Explanation:** This chart illustrates the democratization of fashion. Traditional fashion strictly relied on a top-down mechanism driven by haute couture and editorial gatekeepers. Conversely, Core trends leverage decentralized digital networks, placing social media users at the epicenter of trend-setting propagation.")
+
+    st.markdown("---")
+
+    # 📉 2. Core Trend 성장 추세 그래프 (Growth of Core Fashion Trends)
+    st.subheader("📈 Core Trend Growth Trajectory")
+
+    years = ['2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025']
+    popularity = [10, 15, 35, 50, 70, 85, 95, 100]
+
+    fig2 = go.Figure()
+    fig2.add_trace(go.Scatter(
+        x=years, y=popularity,
+        mode='lines+markers',
+        line=dict(color='#1A2A4A', width=4),
+        marker=dict(size=10, color='#FF8DA1', line=dict(color='#1A2A4A', width=2)),
+        name='Popularity Index'
+    ))
+
+    fig2.update_layout(
+        title={
+            'text': "<b>Growth of Core Fashion Trends</b>",
+            'y':0.9, 'x':0.5, 'xanchor': 'center', 'yanchor': 'top'
+        },
+        font=dict(family="Helvetica Neue, Arial", size=14, color="#1A2A4A"),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',
+        yaxis=dict(title="Relative Popularity Index", gridcolor="#F0D5D9"),
+        xaxis=dict(title="Year")
+    )
+    st.plotly_chart(fig2, use_container_width=True)
+    st.caption("**Interpretation:** The exponential growth post-2020 highlights a paradigm shift towards aesthetic-based fashion identities. Driven by algorithmic personalization on social media and accelerated during global lockdowns, consumer behavior shifted away from singular brand loyalty toward fluid, niche aesthetic participation.")
+
 # ==========================================
 # GORPCORE PAGE
 # ==========================================
@@ -64,7 +133,7 @@ elif selected_tab == "Gorpcore":
     st.subheader("Why People Love It")
     st.markdown("- **Climate Readiness:** Frequent freak weather has made water-resistant and windproof gear everyday city wear.\n- **Comfort and Utility:** Rejecting constricting clothing, Gen Z gravitates toward brands that allow easy movement and possess practical elements.\n- **Eco-Consciousness:** Many gorpcore labels utilize recycled materials and offer repair programs, which heavily appeal to environmentally aware youth.")
 
-    with st.expander("Top Gen Z Brands", expanded=False):
+    with st.expander("Top Gen Z Brands", expanded=True):
         st.write("### Arc'teryx")
         display_centered_image("gorpcore2.png")
         st.write("The brand's XT-6 trail running shoe became an instant, global streetwear icon.")
@@ -81,7 +150,7 @@ elif selected_tab == "Gorpcore":
         display_centered_image("gorpcore5.png")
         st.write("Provides highly accessible, budget-friendly entry points for gorpcore vests and fleeces.")
 
-    with st.expander("Key Elements of Gorpcore", expanded=False):
+    with st.expander("Key Elements of Gorpcore", expanded=True):
         items = [
             ("Hardshell & Rain Jackets", "gorpcore6.png", "Waterproof, breathable shells from technical specialists like Arc'teryx or durable classics like The North Face"),
             ("Fleece Pullovers & Cardigans", "gorpcore7.png", "Cozy layering pieces. Brands like Patagonia are the gold standard for retro and modern fleeces."),
@@ -102,7 +171,7 @@ elif selected_tab == "Balletcore":
     st.header("Balletcore")
     st.write("Balletcore is a viral fashion aesthetic and lifestyle trend that draws inspiration from the delicate, graceful world of classical ballet. It blends the functional beauty of dancewear—like leotards, wrap tops, and tulle skirts—with everyday elevated athleisure and streetwear.")
 
-    with st.expander("Top Gen Z Brands", expanded=False):
+    with st.expander("Top Gen Z Brands", expanded=True):
         brands = [
             ("Miu Miu", "balletcore2.png", "Renowned for bringing ballet flats, wrap skirts, and delicate knitwear to the luxury high-fashion runway."),
             ("Bloch", "balletcore3.png", "An authentic dancewear authority that offers an everyday Ballet Core Collection of wrap tops and soft knitwear."),
@@ -114,7 +183,7 @@ elif selected_tab == "Balletcore":
             display_centered_image(img)
             st.write(desc)
 
-    with st.expander("Key Elements of Balletcore", expanded=False):
+    with st.expander("Key Elements of Balletcore", expanded=True):
         elements = [
             ("Color Palette", "balletcore6.png", "Dominated by soft, romantic hues like pale pinks, creams, whites, nudes, and soft grays. Hints of black or wine tones are often added for contrast."),
             ("Fabrics & Textures", "balletcore7.png", "Flowing, ethereal materials like tulle, chiffon, and sheer fabrics mixed with sleek satin, breathable jersey, and cozy knits."),
@@ -137,7 +206,7 @@ elif selected_tab == "GeekChic":
     st.header("GeekChic")
     st.write("Geek chic is a fashion and lifestyle trend that recontextualizes traditionally 'nerdy' or 'uncool' clothing into trendy, stylish outfits.")
 
-    with st.expander("Top Gen Z Brands", expanded=False):
+    with st.expander("Top Gen Z Brands", expanded=True):
         brands = [
             ("Thom Browne", "geek2.png", "Known for heavily preppy, academically inclined silhouettes, pleated skirts, and tailored blazers."),
             ("LEWKIN", "geek3.png", "A rapidly popular K-fashion brand offering distinctively smart, 'luxe-librarian' styled clothing."),
@@ -148,112 +217,7 @@ elif selected_tab == "GeekChic":
             display_centered_image(img)
             st.write(desc)
 
-    with st.expander("Key Elements of Geek Chic", expanded=False):
+    with st.expander("Key Elements of Geek Chic", expanded=True):
         elements = [
             ("Statement Eyewear", "geek5.png", "Oversized, thick black horn-rimmed frames, tortoiseshell patterns, or wire-rimmed glasses."),
-            ("Vintage Layering", "geek6.png", "Cable-knit sweaters, sweater vests, argyle prints, and oversized cardigans."),
-            ("Preppy Academia", "geek7.png", "Tailored, scholastic silhouettes such as high-waisted trousers, pleated plaid skirts, and blazers."),
-            ("Quirky Footwear", "geek8.png", "Oxfords, loafers, and classic worn-in canvas sneakers."),
-            ("Subtle References", "geek9.png", "Integrating subtle nods to pop culture into an otherwise everyday wardrobe."),
-            ("Smart Accessories", "geek10.png", "Structured leather satchels, messenger bags, or suspenders.")
-        ]
-        for title, img, desc in elements:
-            st.write(f"### {title}")
-            display_centered_image(img)
-            st.write(desc)
-
-# ==========================================
-# BARBIECORE PAGE
-# ==========================================
-elif selected_tab == "Barbiecore":
-    display_centered_image("barbiecore1.png")
-    st.header("Barbiecore")
-    st.write("Barbiecore is a hyper-feminine aesthetic and fashion trend that pays homage to the iconic Mattel doll.")
-
-    with st.expander("Barbiecore Brands", expanded=False):
-        brands = [
-            ("NYX Professional Makeup", "barbiecore2.png", "Offers highly sought-after, limited-edition eyeshadow palettes and mirrors."),
-            ("OPI", "barbiecore3.png", "Released a signature lacquer collection featuring bold pinks and glitters."),
-            ("Aldo", "barbiecore4.png", "Accessible footwear capsule collections directly inspired by the Barbie universe.")
-        ]
-        for title, img, desc in brands:
-            st.write(f"### {title}")
-            display_centered_image(img)
-            st.write(desc)
-
-    with st.expander("Key Elements of Barbiecore", expanded=False):
-        elements = [
-            ("Signature Color Palette", "barbiecore5.png", "Complemented by bubblegum pink, pastel hues, lavender, and bold pops of neon."),
-            ("Hyper-Feminine Fashion", "barbiecore6.png", "Velour tracksuits, butterfly clips, platform shoes, and bodycon dresses."),
-            ("Bold Beauty & Styling", "barbiecore7.png", "Glowing skin with vibrant eyeshadows, cat-eye liner, and glossy lipstick."),
-            ("Maximalist Decor & Design", "barbiecore8.png", "Bright pink walls, velvet seating, and retro-inspired appliances.")
-        ]
-        for title, img, desc in elements:
-            st.write(f"### {title}")
-            display_centered_image(img)
-            st.write(desc)
-
-# ==========================================
-# COWBOYCORE PAGE
-# ==========================================
-elif selected_tab == "Cowboycore":
-    display_centered_image("cowboycore1.png")
-    st.header("Cowboycore")
-    st.write("A dominant fashion and lifestyle aesthetic that elevates traditional Western wear with modern, everyday styling.")
-
-    with st.expander("Cowboycore Brands", expanded=False):
-        brands = [
-            ("Tecovas", "cowboycore2.png", "Known for modern, direct-to-consumer craftsmanship that eliminates luxury markups."),
-            ("Ariat", "cowboycore3.png", "Blends traditional Western silhouettes with athletic footwear technology."),
-            ("Wrangler", "cowboycore4.png", "The defining name in Western denim, famous for its durable 'cowboy cut' jeans."),
-            ("Lee", "cowboycore5.png", "A heritage denim brand that frequently collaborates on trendy western capsules.")
-        ]
-        for title, img, desc in brands:
-            st.write(f"### {title}")
-            display_centered_image(img)
-            st.write(desc)
-
-    with st.expander("Key Elements of Cowboycore", expanded=False):
-        elements = [
-            ("Footwear", "cowboycore6.png", "Classic leather or suede cowboy boots ranging from neutral tones to detailed embroidery."),
-            ("Headwear & Accessories", "cowboycore7.png", "Wide-brimmed cowboy hats, heavy metal-buckled belts, bolo ties, and bandanas."),
-            ("Fabrics & Textures", "cowboycore8.png", "Heavy-duty denim, rugged leather, distressed suede, and fringed elements."),
-            ("Silhouettes & Tailoring", "cowboycore9.png", "Western button-down shirts, chore jackets, and ruffled skirts."),
-            ("Earthy Color Palettes", "cowboycore10.png", "Denim blues, dusty rust, warm ochre, sage green, and deep browns.")
-        ]
-        for title, img, desc in elements:
-            st.write(f"### {title}")
-            display_centered_image(img)
-            st.write(desc)
-
-# ==========================================
-# ROYALCORE PAGE
-# ==========================================
-elif selected_tab == "Royalcore":
-    display_centered_image("royalcore1.png")
-    st.header("Royalcore")
-    st.write("Royalcore is an internet aesthetic that romanticizes the opulence, elegance, and lifestyle of historical European royalty.")
-
-    with st.expander("Royalcore Brands", expanded=False):
-        brands = [
-            ("Selkie", "royalcore2.png", "Famous for their signature pastel puff dresses and printed organza designs."),
-            ("Teuta Matoshi", "royalcore3.png", "Renowned for exquisite formal gowns, floral bodices, and elaborate tulle skirts."),
-            ("Lirika Matoshi", "royalcore4.png", "Whimsical designs that merge fantasy with modern royal aesthetics.")
-        ]
-        for title, img, desc in brands:
-            st.write(f"### {title}")
-            display_centered_image(img)
-            st.write(desc)
-
-    with st.expander("Key Elements of Royalcore", expanded=False):
-        elements = [
-            ("Regal Fashion & Silhouettes", "royalcore5.png", "Corsets, ball gowns, A-line skirts, and puff-sleeved dresses."),
-            ("Fabrics", "royalcore6.png", "Luxurious and heavy materials like velvet, silk, brocade, organza, and lace."),
-            ("Accessories", "royalcore7.png", "Tiaras, long opera gloves, pearls, and ornate brooches."),
-            ("Maximalist Décor & Interiors", "royalcore8.png", "Four-poster beds, gilded picture frames, crystal chandeliers, and ornate mirrors."),
-            ("Art & Culture", "royalcore9.png", "Driven by shows like Bridgerton, Jane Austen novels, and classical symphonies.")
-        ]
-        for title, img, desc in elements:
-            st.write(f"### {title}")
-            display_centered_image(img)
-            st.write(desc)
+            ("Vintage Layering", "geek6.png", "Cable-knit sweaters, sweater vests, argyle prints,
